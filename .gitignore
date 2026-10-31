@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Generated artifacts
+rag/index/
+finetune/data/*.jsonl
+finetune/adapter/
+finetune/**/_checkpoints/
+evaluation/comparison_report.md
+
+# Downloaded TTS voices / models
+server/voices/
+*.onnx
+*.onnx.json
+
+# OS
+.DS_Store
+*.pptx

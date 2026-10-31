@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Voice Assistant · RAG vs Fine-tuning</title>
+  <link rel="preconnect" href="https://rsms.me/" />
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header>
+    <span class="brand"><span class="dot"></span> API-based Cloud Native Solutions</span>
+    <h1>Voice Study Assistant</h1>
+    <p class="subtitle">Ask by voice or text &middot; compare <b>RAG</b> vs <b>Fine-tuning</b></p>
+    <div id="health" class="health">checking backends…</div>
+  </header>
+
+  <main>
+    <section class="controls">
+      <div class="mic-wrap" id="micWrap">
+        <button id="recordBtn" class="mic">🎤 Hold to speak</button>
+      </div>
+
+      <form id="textForm" class="text-input">
+        <input id="textBox" type="text" placeholder="…or type a question and press Enter" autocomplete="off" />
+        <button type="submit" class="send" title="Send">➤</button>
+      </form>
+
+      <div class="mode-row">
+        <div class="mode">
+          <span>Answer with:</span>
+          <label><input type="radio" name="mode" value="rag" checked /> RAG</label>
+          <label><input type="radio" name="mode" value="finetune" /> Fine-tuned</label>
+          <label><input type="radio" name="mode" value="both" /> Compare both</label>
+        </div>
+        <button id="audioToggle" class="audio-toggle" title="Toggle audio playback">🔊 Audio on</button>
+      </div>
+      <p class="status" id="status">Ready — hold the mic, or type your question below.</p>
+    </section>
+
+    <section class="transcript-box" id="transcriptBox" hidden>
+      <span class="label">You asked</span>
+      <p id="transcript">—</p>
+    </section>
+
+    <section id="answers" class="answers"></section>
+  </main>
+
+  <template id="answerCard">
+    <div class="card">
+      <div class="card-head">
+        <span class="badge"></span>
+        <button class="replay" title="Play answer">🔊</button>
+        <span class="latency"></span>
+      </div>
+      <p class="answer">…</p>
+      <div class="sources"></div>
+    </div>
+  </template>
+
+  <script src="/app.js"></script>
+</body>
+</html>

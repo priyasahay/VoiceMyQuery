@@ -1,0 +1,27 @@
+# --- Web server ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+requests==2.32.3
+
+# --- Voice IN: speech-to-text (faster-whisper, MIT) ---
+faster-whisper==1.1.1
+
+# --- Voice OUT: text-to-speech fallback (pyttsx3, BSD) ---
+# Piper (preferred, MIT) is installed separately via `pip install piper-tts`
+# or its release binary; see README.
+pyttsx3==2.98
+
+# --- RAG: embeddings + vector index (Apache 2.0 / MIT) ---
+sentence-transformers==3.3.1
+faiss-cpu==1.9.0
+
+# --- Fine-tuning: LoRA on a small open model (Apache 2.0) ---
+torch==2.5.1
+transformers==4.47.1
+peft==0.14.0
+datasets==3.2.0
+accelerate==1.2.1
+
+# Note: the RAG LLM runs in Ollama (installed via `brew install ollama`),
+# not as a pip package.
