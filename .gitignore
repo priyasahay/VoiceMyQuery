@@ -6,7 +6,7 @@ venv/
 
 # Generated artifacts
 rag/index/
-finetune/data/*.jsonl
+
 finetune/adapter/
 finetune/**/_checkpoints/
 evaluation/comparison_report.md
