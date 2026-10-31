@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoiceMyQuery — RAG vs Fine-Tuning Voice Assistant</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      line-height: 1.7;
+    }
+
+    a { color: #58a6ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 80px 24px 60px;
+      background: linear-gradient(160deg, #161b22 0%, #0d1117 60%);
+      border-bottom: 1px solid #21262d;
+    }
+    .hero .badge {
+      display: inline-block;
+      background: #1f6feb22;
+      border: 1px solid #1f6feb55;
+      color: #58a6ff;
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      background: linear-gradient(90deg, #58a6ff, #79c0ff, #a5d6ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: #8b949e;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+    .hero-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; text-decoration: none; }
+    .btn-primary { background: #238636; color: #fff; border: 1px solid #2ea043; }
+    .btn-secondary { background: transparent; color: #e6edf3; border: 1px solid #30363d; }
+
+    /* DEMO STRIP */
+    .demo-strip {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      background: #161b22;
+      border-bottom: 1px solid #21262d;
+      overflow-x: auto;
+    }
+    .demo-step {
+      text-align: center;
+      padding: 28px 32px;
+      flex: 1;
+      min-width: 160px;
+      border-right: 1px solid #21262d;
+    }
+    .demo-step:last-child { border-right: none; }
+    .demo-step .icon { font-size: 2rem; margin-bottom: 8px; }
+    .demo-step .label { font-size: 13px; color: #8b949e; }
+    .demo-step .title { font-size: 15px; font-weight: 600; color: #e6edf3; }
+
+    /* SECTIONS */
+    section { padding: 64px 24px; max-width: 960px; margin: 0 auto; }
+    section h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 32px;
+      color: #e6edf3;
+      border-left: 3px solid #238636;
+      padding-left: 14px;
+    }
+
+    /* CARDS GRID */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: #388bfd55; }
+    .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; color: #79c0ff; }
+    .card p { font-size: 14px; color: #8b949e; }
+
+    /* COMPARE TABLE */
+    .compare-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .compare-table th {
+      background: #161b22;
+      padding: 12px 16px;
+      text-align: left;
+      border: 1px solid #21262d;
+      color: #8b949e;
+      font-weight: 600;
+    }
+    .compare-table td {
+      padding: 11px 16px;
+      border: 1px solid #21262d;
+      color: #c9d1d9;
+    }
+    .compare-table tr:nth-child(even) td { background: #161b2244; }
+    .good { color: #3fb950; }
+    .warn { color: #d29922; }
+    .bad  { color: #f85149; }
+
+    /* TECH STACK */
+    .tech-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    .tech-pill {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 13px;
+      color: #c9d1d9;
+    }
+    .tech-pill span { color: #58a6ff; font-weight: 600; }
+
+    /* CODE BLOCK */
+    pre {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 20px;
+      font-size: 13px;
+      overflow-x: auto;
+      color: #c9d1d9;
+      line-height: 1.6;
+    }
+    code { font-family: "SFMono-Regular", Consolas, monospace; }
+    .comment { color: #8b949e; }
+    .cmd { color: #3fb950; }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      border-top: 1px solid #21262d;
+      color: #8b949e;
+      font-size: 13px;
+    }
+    footer a { color: #58a6ff; }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">M.Tech · API-based Cloud Native Solutions</div>
+  <h1>VoiceMyQuery</h1>
+  <p>Ask cloud-native questions by voice. Compare answers from two AI approaches — RAG and LoRA Fine-tuning — side by side.</p>
+  <div class="hero-buttons">
+    <a class="btn btn-primary" href="https://github.com/priyasahay/VoiceMyQuery">View on GitHub</a>
+    <a class="btn btn-secondary" href="https://github.com/priyasahay/VoiceMyQuery#readme">Read Docs</a>
+  </div>
+</div>
+
+<!-- DEMO STRIP -->
+<div class="demo-strip">
+  <div class="demo-step">
+    <div class="icon">🎙️</div>
+    <div class="title">Speak</div>
+    <div class="label">Ask a question by voice</div>
+  </div>
+  <div class="demo-step">
+    <div class="icon">🔍</div>
+    <div class="title">RAG retrieves</div>
+    <div class="label">FAISS vector search</div>
+  </div>
+  <div class="demo-step">
+    <div class="icon">🧠</div>
+    <div class="title">Fine-tune answers</div>
+    <div class="label">From trained weights</div>
+  </div>
+  <div class="demo-step">
+    <div class="icon">⚖️</div>
+    <div class="title">Compare</div>
+    <div class="label">Side-by-side results</div>
+  </div>
+  <div class="demo-step">
+    <div class="icon">🔊</div>
+    <div class="title">Hear it</div>
+    <div class="label">Answers spoken aloud</div>
+  </div>
+</div>
+
+<!-- WHAT IT DOES -->
+<section>
+  <h2>What it does</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>🎙️ Voice Input</h3>
+      <p>Speak your question directly into the browser. <strong>faster-whisper</strong> transcribes your speech offline — no cloud STT needed.</p>
+    </div>
+    <div class="card">
+      <h3>🔍 RAG Mode</h3>
+      <p>Retrieves the most relevant chunks from a knowledge base using <strong>FAISS</strong> vector search, then answers with <strong>Llama 3.2 3B</strong> via Ollama.</p>
+    </div>
+    <div class="card">
+      <h3>🧠 Fine-tune Mode</h3>
+      <p>Answers directly from a <strong>LoRA-adapted TinyLlama 1.1B</strong> model trained on 45 Q&amp;A pairs. No retrieval — pure memory.</p>
+    </div>
+    <div class="card">
+      <h3>⚖️ Compare Mode</h3>
+      <p>Run both pipelines on the same question and hear the answers read back sequentially to understand the difference.</p>
+    </div>
+    <div class="card">
+      <h3>🔊 Voice Output</h3>
+      <p>Every answer is read aloud using macOS <strong>say</strong> (TTS). Toggle audio on/off anytime during the session.</p>
+    </div>
+    <div class="card">
+      <h3>📊 Evaluation</h3>
+      <p>Built-in evaluation harness runs 15 held-out questions across in-domain, paraphrased, and out-of-scope categories.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RAG VS FINE-TUNE -->
+<section>
+  <h2>RAG vs Fine-tuning — at a glance</h2>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Dimension</th>
+        <th>RAG</th>
+        <th>Fine-tuning (LoRA)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Where knowledge lives</td><td>External index</td><td>Model weights</td></tr>
+      <tr><td>Out-of-scope behaviour</td><td class="good">Says "I don't know"</td><td class="bad">Hallucinates confidently</td></tr>
+      <tr><td>Citations / sources</td><td class="good">Yes</td><td class="bad">No</td></tr>
+      <tr><td>Inference latency</td><td class="warn">~3–8 s</td><td class="good">~2–3 s</td></tr>
+      <tr><td>Knowledge update cost</td><td class="good">Seconds (re-index)</td><td class="warn">Minutes–hours (retrain)</td></tr>
+      <tr><td>Model size</td><td>Llama 3.2 3B</td><td>TinyLlama 1.1B</td></tr>
+      <tr><td>Requires Ollama</td><td class="warn">Yes</td><td class="good">No</td></tr>
+      <tr><td>Handles paraphrasing</td><td class="good">Well (semantic search)</td><td class="warn">Variable (small dataset)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- TECH STACK -->
+<section>
+  <h2>Tech stack</h2>
+  <div class="tech-grid">
+    <div class="tech-pill"><span>STT</span> faster-whisper (base)</div>
+    <div class="tech-pill"><span>TTS</span> macOS say</div>
+    <div class="tech-pill"><span>RAG LLM</span> Llama 3.2 3B via Ollama</div>
+    <div class="tech-pill"><span>Embeddings</span> all-MiniLM-L6-v2</div>
+    <div class="tech-pill"><span>Vector DB</span> FAISS IndexFlatIP</div>
+    <div class="tech-pill"><span>Fine-tune</span> TinyLlama 1.1B + LoRA</div>
+    <div class="tech-pill"><span>LoRA lib</span> PEFT (Hugging Face)</div>
+    <div class="tech-pill"><span>Backend</span> FastAPI + Uvicorn</div>
+    <div class="tech-pill"><span>Frontend</span> Vanilla JS + HTML/CSS</div>
+    <div class="tech-pill"><span>Training</span> PyTorch + transformers</div>
+    <div class="tech-pill"><span>Platform</span> macOS (Apple Silicon)</div>
+  </div>
+</section>
+
+<!-- QUICK START -->
+<section>
+  <h2>Quick start</h2>
+  <pre><code><span class="comment"># 1. Clone the repo</span>
+<span class="cmd">git clone https://github.com/priyasahay/VoiceMyQuery.git</span>
+<span class="cmd">cd VoiceMyQuery</span>
+
+<span class="comment"># 2. Create virtual environment and install dependencies</span>
+<span class="cmd">python3.11 -m venv .venv &amp;&amp; source .venv/bin/activate</span>
+<span class="cmd">pip install -r requirements.txt</span>
+
+<span class="comment"># 3. Start Ollama and download RAG model</span>
+<span class="cmd">ollama serve &amp;</span>
+<span class="cmd">ollama pull llama3.2:3b</span>
+
+<span class="comment"># 4. Build RAG index</span>
+<span class="cmd">python -m rag.ingest</span>
+
+<span class="comment"># 5. Train LoRA adapter (optional, ~10 min on M1/M2)</span>
+<span class="cmd">python -m finetune.train_lora</span>
+
+<span class="comment"># 6. Start the server</span>
+<span class="cmd">python -m server.app</span>
+
+<span class="comment"># Open http://127.0.0.1:4005</span></code></pre>
+</section>
+
+<!-- ARCHITECTURE -->
+<section>
+  <h2>Architecture</h2>
+  <pre><code>Browser (mic + speaker)
+       │  WebSocket / REST
+       ▼
+  FastAPI Server (:4005)
+       │
+       ├──► STT (faster-whisper) ──► text question
+       │
+       ├──► RAG Pipeline
+       │       ├── Embed question (all-MiniLM-L6-v2)
+       │       ├── FAISS search → top-4 chunks
+       │       └── Ollama (Llama 3.2 3B) → answer
+       │
+       ├──► Fine-tune Pipeline
+       │       └── TinyLlama 1.1B + LoRA adapter → answer
+       │
+       └──► TTS (macOS say) ──► audio file ──► browser</code></pre>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  Built by <a href="https://github.com/priyasahay">Priya Sahay</a> · M.Tech project · API-based Cloud Native Solutions ·
+  <a href="https://github.com/priyasahay/VoiceMyQuery">GitHub</a>
+</footer>
+
+</body>
+</html>
